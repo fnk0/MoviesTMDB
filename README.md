@@ -18,3 +18,5 @@ This project will be divided into several parts.
 ![Details Similar](https://github.com/fnk0/MoviesTMDB/blob/master/screenshots/details_similar.png?raw=true "Home")
 ![Cast](https://github.com/fnk0/MoviesTMDB/blob/master/screenshots/cast_page.png?raw=true "Home")
 ![Search](https://github.com/fnk0/MoviesTMDB/blob/master/screenshots/search.png?raw=true "Home")
+
+### Skeleton
