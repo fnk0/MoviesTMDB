@@ -11,4 +11,4 @@ This project will be divided into several parts.
 
 ### Screenshots
 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+![Home](https://github.com/fnk0/MoviesTMDB/blob/master/screenshots/home.png?raw=true "Home")
