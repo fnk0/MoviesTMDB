@@ -1,0 +1,121 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+        classpath 'me.tatarka:gradle-retrolambda:3.2.5'
+        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.1.1'
+    }
+}
+
+repositories {
+    maven { url "https://jitpack.io" }
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'com.getkeepsafe.dexcount'
+apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "24.0.2"
+    defaultConfig {
+        applicationId "com.gabilheri.moviestmdb"
+        minSdkVersion 21
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    packagingOptions {
+        exclude '.readme'
+        exclude 'LICENSE.txt'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LGPL2.1'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/README.txt'
+        exclude 'META-INF/dependencies.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/maven/com.squareup.okhttp/okhttp/pom.xml'
+        exclude 'META-INF/maven/com.squareup.okhttp/okhttp/pom.properties'
+        exclude 'META-INF/maven/com.squareup/otto/pom.xml'
+        exclude 'META-INF/maven/com.squareup/otto/pom.properties'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name.equals("lint")) {
+        task.enabled = false
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    String supportLibVersion = "24.2.1"
+    String retrofitVersion = "2.1.0"
+    String okHttpVersion = "3.4.1"
+
+    // Google Support Libraries
+    compile "com.android.support:appcompat-v7:${supportLibVersion}"
+    compile "com.android.support:cardview-v7:${supportLibVersion}"
+    compile "com.android.support:support-annotations:${supportLibVersion}"
+    compile "com.android.support:support-v13:${supportLibVersion}"
+    compile "com.android.support:support-v4:${supportLibVersion}"
+    compile "com.android.support:palette-v7:${supportLibVersion}"
+    compile "com.android.support:design:${supportLibVersion}"
+    compile "com.android.support:recyclerview-v7:${supportLibVersion}"
+    compile "com.android.support:customtabs:${supportLibVersion}"
+    compile "com.android.support:leanback-v17:${supportLibVersion}"
+
+    // Base stuff
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'io.reactivex:rxjava:1.1.6'
+    compile 'com.squareup.sqlbrite:sqlbrite:0.7.0'
+
+    // Network
+    compile "com.squareup.retrofit2:retrofit:${retrofitVersion}"
+    compile "com.squareup.retrofit2:converter-moshi:${retrofitVersion}"
+    compile "com.squareup.retrofit2:adapter-rxjava:${retrofitVersion}"
+    compile "com.squareup.okhttp3:okhttp:${okHttpVersion}"
+    compile "com.squareup.okhttp3:logging-interceptor:${okHttpVersion}"
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+
+    // Logging
+    compile 'com.jakewharton.timber:timber:4.3.0'
+
+    // Dependency Injection
+    apt 'com.google.dagger:dagger-compiler:2.4'
+    compile 'com.google.dagger:dagger:2.4'
+    provided 'javax.annotation:jsr250-api:1.0'
+
+    compile 'com.jakewharton:butterknife:8.4.0'
+    apt 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile('com.mikepenz:aboutlibraries:5.5.9@aar') {
+        transitive = true
+    }
+}
