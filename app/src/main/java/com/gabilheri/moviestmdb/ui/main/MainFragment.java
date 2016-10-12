@@ -3,12 +3,20 @@ package com.gabilheri.moviestmdb.ui.main;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 
 import com.gabilheri.moviestmdb.App;
 import com.gabilheri.moviestmdb.Config;
 import com.gabilheri.moviestmdb.R;
+import com.gabilheri.moviestmdb.dagger.modules.HttpClientModule;
 import com.gabilheri.moviestmdb.data.Api.TheMovieDbAPI;
 import com.gabilheri.moviestmdb.data.models.Movie;
 import com.gabilheri.moviestmdb.data.models.MovieResponse;
@@ -28,8 +36,7 @@ import timber.log.Timber;
  * @version 1.0
  * @since 10/8/16.
  */
-
-public class MainFragment extends BrowseFragment {
+public class MainFragment extends BrowseFragment implements OnItemViewSelectedListener {
 
     @Inject
     TheMovieDbAPI mDbAPI;
@@ -112,7 +119,21 @@ public class MainFragment extends BrowseFragment {
      * Creates the rows and sets up the adapter of the fragment
      */
     private void createRows() {
-
+        // Creates the RowsAdapter for the Fragment
+        // The ListRowPresenter tells to render ListRow objects
+        ArrayObjectAdapter rowsAdapter = new ArrayObjectAdapter(new ListRowPresenter());
+        for (int i = 0; i < mRows.size(); i++) {
+            MovieRow row = mRows.get(i);
+            // Adds a new ListRow to the adapter. Each row will contain a collection of Movies
+            // That will be rendered using the MoviePresenter
+            HeaderItem headerItem = new HeaderItem(row.getId(), row.getTitle());
+            ListRow listRow = new ListRow(headerItem, row.getAdapter());
+            rowsAdapter.add(listRow);
+        }
+        // Sets this fragments Adapter.
+        // The setAdapter method is defined in the BrowseFragment of the Leanback Library
+        setAdapter(rowsAdapter);
+        setOnItemViewSelectedListener(this);
     }
 
     /**
@@ -188,6 +209,21 @@ public class MainFragment extends BrowseFragment {
         for(Movie m : response.getResults()) {
             if (m.getPosterPath() != null) { // Avoid showing movie without posters
                 row.getAdapter().add(m);
+            }
+        }
+    }
+
+    @Override
+    public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
+        // Check if the item is a movie
+        if (item instanceof Movie) {
+            Movie movie = (Movie) item;
+            // Check if the movie has a backdrop
+            if(movie.getBackdropPath() != null) {
+                mBackgroundManager.loadImage(HttpClientModule.BACKDROP_URL + movie.getBackdropPath());
+            } else {
+                // If there is no backdrop for the movie we just use a default one
+                mBackgroundManager.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.material_bg));
             }
         }
     }
