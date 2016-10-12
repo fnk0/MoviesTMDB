@@ -3,12 +3,10 @@ package com.gabilheri.moviestmdb.ui.main;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
-import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 
 import com.gabilheri.moviestmdb.App;
 import com.gabilheri.moviestmdb.Config;
-import com.gabilheri.moviestmdb.R;
 import com.gabilheri.moviestmdb.data.Api.TheMovieDbAPI;
 import com.gabilheri.moviestmdb.data.models.Movie;
 import com.gabilheri.moviestmdb.data.models.MovieResponse;
@@ -59,13 +57,7 @@ public class MainFragment extends BrowseFragment {
         // It is the preferred way to set the background of a fragment
         mBackgroundManager = new GlideBackgroundManager(getActivity());
 
-        // The brand color will be used as the background for the Headers fragment
-        setBrandColor(ContextCompat.getColor(getActivity(), R.color.primary_transparent));
-        setHeadersState(HEADERS_ENABLED);
-        setHeadersTransitionOnBackEnabled(true);
-
-        // The TMDB logo on the right corner. It is necessary to show based on their API usage policy
-        setBadgeDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.powered_by));
+        // Add code here for initialization of HeadersFragment and badge title
 
         createDataRows();
         createRows();
