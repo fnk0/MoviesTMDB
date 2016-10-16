@@ -61,16 +61,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!--<TextView-->
-            <!--tools:text="Adventure"-->
-            <!--android:paddingLeft="16dp"-->
-            <!--android:paddingRight="16dp"-->
-            <!--android:paddingTop="8dp"-->
-            <!--android:paddingBottom="8dp"-->
-            <!--android:background="@drawable/genre_bg"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"/>-->
-
     </LinearLayout>
 
     <TextView
@@ -84,7 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="@string/overview"
+        android:text="Overview:"
         android:textSize="16sp"
         android:textStyle="bold"/>
 

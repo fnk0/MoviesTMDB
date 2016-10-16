@@ -1,15 +1,18 @@
 package com.gabilheri.moviestmdb.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.OnItemViewSelectedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 
@@ -21,6 +24,9 @@ import com.gabilheri.moviestmdb.data.Api.TheMovieDbAPI;
 import com.gabilheri.moviestmdb.data.models.Movie;
 import com.gabilheri.moviestmdb.data.models.MovieResponse;
 import com.gabilheri.moviestmdb.ui.base.GlideBackgroundManager;
+import com.gabilheri.moviestmdb.ui.details.MovieDetailsActivity;
+import com.gabilheri.moviestmdb.ui.details.MovieDetailsFragment;
+import com.gabilheri.moviestmdb.ui.movies.MovieCardView;
 import com.gabilheri.moviestmdb.ui.movies.MoviePresenter;
 
 import javax.inject.Inject;
@@ -36,7 +42,7 @@ import timber.log.Timber;
  * @version 1.0
  * @since 10/8/16.
  */
-public class MainFragment extends BrowseFragment implements OnItemViewSelectedListener {
+public class MainFragment extends BrowseFragment implements OnItemViewSelectedListener, OnItemViewClickedListener {
 
     @Inject
     TheMovieDbAPI mDbAPI;
@@ -134,6 +140,7 @@ public class MainFragment extends BrowseFragment implements OnItemViewSelectedLi
         // The setAdapter method is defined in the BrowseFragment of the Leanback Library
         setAdapter(rowsAdapter);
         setOnItemViewSelectedListener(this);
+        setOnItemViewClickedListener(this);
     }
 
     /**
@@ -224,6 +231,27 @@ public class MainFragment extends BrowseFragment implements OnItemViewSelectedLi
             } else {
                 // If there is no backdrop for the movie we just use a default one
                 mBackgroundManager.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.material_bg));
+            }
+        }
+    }
+
+    @Override
+    public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
+        if (item instanceof Movie) {
+            Movie movie = (Movie) item;
+            Intent i = new Intent(getActivity(), MovieDetailsActivity.class);
+            // Pass the movie to the activity
+            i.putExtra(Movie.class.getSimpleName(), movie);
+
+            if (itemViewHolder.view instanceof MovieCardView) {
+                // Pass the ImageView to allow a nice transition
+                Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        getActivity(),
+                        ((MovieCardView) itemViewHolder.view).getPosterIV(),
+                        MovieDetailsFragment.TRANSITION_NAME).toBundle();
+                getActivity().startActivity(i, bundle);
+            } else {
+                startActivity(i);
             }
         }
     }

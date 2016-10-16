@@ -9,5 +9,5 @@ package com.gabilheri.moviestmdb;
  */
 
 public class Config {
-    public static final String API_KEY_URL = "";
+    public static final String API_KEY_URL = "7d667828c3db37bf5f3131272d985c5b";
 }

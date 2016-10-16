@@ -3,9 +3,24 @@ package com.gabilheri.moviestmdb.ui.details;
 import android.os.Bundle;
 import android.support.v17.leanback.app.DetailsFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.ClassPresenterSelector;
+import android.support.v17.leanback.widget.DetailsOverviewLogoPresenter;
+import android.support.v17.leanback.widget.DetailsOverviewRow;
+import android.support.v17.leanback.widget.FullWidthDetailsOverviewRowPresenter;
+import android.support.v17.leanback.widget.FullWidthDetailsOverviewSharedElementHelper;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.gabilheri.moviestmdb.App;
 import com.gabilheri.moviestmdb.Config;
+import com.gabilheri.moviestmdb.dagger.modules.HttpClientModule;
 import com.gabilheri.moviestmdb.data.Api.TheMovieDbAPI;
 import com.gabilheri.moviestmdb.data.models.Movie;
 import com.gabilheri.moviestmdb.data.models.MovieDetails;
@@ -25,6 +40,8 @@ import timber.log.Timber;
  */
 public class MovieDetailsFragment extends DetailsFragment {
 
+    public static String TRANSITION_NAME = "poster_transition";
+
     // Injects the API using Dagger
     @Inject
     TheMovieDbAPI mDbAPI;
@@ -32,6 +49,8 @@ public class MovieDetailsFragment extends DetailsFragment {
     private Movie movie;
     private MovieDetails movieDetails;
     private ArrayObjectAdapter mAdapter;
+    private FullWidthDetailsOverviewRowPresenter mFullWidthMovieDetailsPresenter;
+    private DetailsOverviewRow mDetailsOverviewRow;
 
     /**
      * Creates a new instance of a MovieDetailsFragment
@@ -67,14 +86,36 @@ public class MovieDetailsFragment extends DetailsFragment {
      * Sets up the adapter for this Fragment
      */
     private void setUpAdapter() {
+        // Create the FullWidthPresenter
+        mFullWidthMovieDetailsPresenter = new FullWidthDetailsOverviewRowPresenter(new MovieDetailsDescriptionPresenter(),
+                new DetailsOverviewLogoPresenter());
 
+        // Handle the transition, the Helper is mainly used because the ActivityTransition is being passed from
+        // The Activity into the Fragment
+        FullWidthDetailsOverviewSharedElementHelper helper = new FullWidthDetailsOverviewSharedElementHelper();
+        helper.setSharedElementEnterTransition(getActivity(), TRANSITION_NAME); // the transition name is important
+        mFullWidthMovieDetailsPresenter.setListener(helper); // Attach the listener
+        // Define if this element is participating in the transition or not
+        mFullWidthMovieDetailsPresenter.setParticipatingEntranceTransition(false);
+
+        // Class presenter selector allows the Adapter to render Rows and the details
+        // It can be used in any of the Adapters by the Leanback library
+        ClassPresenterSelector classPresenterSelector = new ClassPresenterSelector();
+        classPresenterSelector.addClassPresenter(DetailsOverviewRow.class, mFullWidthMovieDetailsPresenter);
+        classPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
+        mAdapter = new ArrayObjectAdapter(classPresenterSelector);
+        setAdapter(mAdapter);
     }
 
     /**
      * Sets up the details overview rows
      */
     private void setUpDetailsOverviewRow() {
-
+        mDetailsOverviewRow = new DetailsOverviewRow(new MovieDetails());
+        // Add the DetailsOverviewRow to the adapter like we did on the MainFragment
+        mAdapter.add(mDetailsOverviewRow);
+        loadImage(HttpClientModule.POSTER_URL + movie.getPosterPath());
+        fetchMovieDetails();
     }
 
     /**
@@ -91,6 +132,38 @@ public class MovieDetailsFragment extends DetailsFragment {
 
     private void bindMovieDetails(MovieDetails movieDetails) {
         this.movieDetails = movieDetails;
+        // Bind the details to the row
+        mDetailsOverviewRow.setItem(this.movieDetails);
+    }
+
+    private SimpleTarget<GlideDrawable> mGlideDrawableSimpleTarget = new SimpleTarget<GlideDrawable>() {
+        @Override
+        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation) {
+            mDetailsOverviewRow.setImageDrawable(resource);
+        }
+    };
+
+    /**
+     * Loads the poster image into the DetailsOverviewRow
+     * @param url
+     *      The poster URL
+     */
+    private void loadImage(String url) {
+        Glide.with(getActivity())
+                .load(url)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        return false;
+                    }
+                })
+                .into(mGlideDrawableSimpleTarget);
     }
 
 }
