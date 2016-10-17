@@ -26,7 +26,6 @@ public class CustomMovieDetailsPresenter extends FullWidthDetailsOverviewRowPres
 
     @Override
     protected void onLayoutLogo(ViewHolder viewHolder, int oldState, boolean logoChanged) {
-        super.onLayoutLogo(viewHolder, oldState, logoChanged);
         View v = viewHolder.getLogoViewHolder().view;
         ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) v.getLayoutParams();
 
