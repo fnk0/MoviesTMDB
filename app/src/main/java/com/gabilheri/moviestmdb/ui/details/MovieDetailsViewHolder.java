@@ -2,7 +2,6 @@ package com.gabilheri.moviestmdb.ui.details;
 
 import android.graphics.drawable.GradientDrawable;
 import android.support.v17.leanback.widget.Presenter;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -75,25 +74,39 @@ public class MovieDetailsViewHolder extends Presenter.ViewHolder {
             int _8dp = (int) itemView.getResources().getDimension(R.dimen.half_padding);
             float corner = itemView.getResources().getDimension(R.dimen.genre_corner);
 
-            // Adds each genre to the genre layout
-            for (Genre g : movie.getGenres()) {
-                TextView tv = new TextView(itemView.getContext());
-                tv.setText(g.getName());
-                GradientDrawable shape = new GradientDrawable();
-                shape.setShape(GradientDrawable.RECTANGLE);
-                shape.setCornerRadius(corner);
-                shape.setColor(ContextCompat.getColor(itemView.getContext(), R.color.primary_dark));
-                tv.setPadding(_8dp, _8dp, _8dp, _8dp);
-                tv.setBackground(shape);
+            if (movie.getPaletteColors() != null) {
+                movieTitleTV.setTextColor(movie.getPaletteColors().getTitleColor());
+                mOverviewLabelTV.setTextColor(movie.getPaletteColors().getTitleColor());
+                mTaglineTV.setTextColor(movie.getPaletteColors().getTextColor());
+                mRuntimeTV.setTextColor(movie.getPaletteColors().getTextColor());
+                movieYearTV.setTextColor(movie.getPaletteColors().getTextColor());
+                movieOverview.setTextColor(movie.getPaletteColors().getTextColor());
+                mDirectorTv.setTextColor(movie.getPaletteColors().getTextColor());
+                int primaryDarkColor = movie.getPaletteColors().getStatusBarColor();
 
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT));
-                params.setMargins(0, 0, _16dp, 0);
-                tv.setLayoutParams(params);
+                // Adds each genre to the genre layout
+                for (Genre g : movie.getGenres()) {
+                    TextView tv = new TextView(itemView.getContext());
+                    tv.setText(g.getName());
+                    GradientDrawable shape = new GradientDrawable();
+                    shape.setShape(GradientDrawable.RECTANGLE);
+                    shape.setCornerRadius(corner);
+                    shape.setColor(primaryDarkColor);
+                    tv.setPadding(_8dp, _8dp, _8dp, _8dp);
+                    tv.setBackground(shape);
 
-                mGenresLayout.addView(tv);
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+                    params.setMargins(0, 0, _16dp, 0);
+                    tv.setLayoutParams(params);
+
+                    mGenresLayout.addView(tv);
+                }
+
             }
+
+
         }
 
     }

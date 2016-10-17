@@ -7,4 +7,6 @@
     <dimen name="half_padding">8dp</dimen>
     <dimen name="full_padding">16dp</dimen>
 
+    <dimen name="lb_details_v2_card_height">430dp</dimen>
+
 </resources>
