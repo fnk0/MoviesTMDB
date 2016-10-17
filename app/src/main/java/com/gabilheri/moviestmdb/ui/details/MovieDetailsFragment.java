@@ -1,8 +1,11 @@
 package com.gabilheri.moviestmdb.ui.details;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v17.leanback.app.DetailsFragment;
+import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.DetailsOverviewLogoPresenter;
@@ -11,6 +14,7 @@ import android.support.v17.leanback.widget.FullWidthDetailsOverviewSharedElement
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
 import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.SparseArrayObjectAdapter;
 import android.support.v7.graphics.Palette;
 
 import com.bumptech.glide.Glide;
@@ -26,12 +30,17 @@ import com.gabilheri.moviestmdb.Config;
 import com.gabilheri.moviestmdb.dagger.modules.HttpClientModule;
 import com.gabilheri.moviestmdb.data.Api.TheMovieDbAPI;
 import com.gabilheri.moviestmdb.data.models.CreditsResponse;
+import com.gabilheri.moviestmdb.data.models.CrewMember;
 import com.gabilheri.moviestmdb.data.models.Movie;
 import com.gabilheri.moviestmdb.data.models.MovieDetails;
 import com.gabilheri.moviestmdb.data.models.MovieResponse;
 import com.gabilheri.moviestmdb.data.models.PaletteColors;
+import com.gabilheri.moviestmdb.data.models.Video;
+import com.gabilheri.moviestmdb.data.models.VideoResponse;
 import com.gabilheri.moviestmdb.ui.base.PaletteUtils;
 import com.gabilheri.moviestmdb.ui.movies.MoviePresenter;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -59,9 +68,9 @@ public class MovieDetailsFragment extends DetailsFragment implements Palette.Pal
     private ArrayObjectAdapter mAdapter;
     private CustomMovieDetailsPresenter mFullWidthMovieDetailsPresenter;
     private DetailsOverviewRow mDetailsOverviewRow;
-
-    ArrayObjectAdapter mCastAdapter = new ArrayObjectAdapter(new PersonPresenter());
-    ArrayObjectAdapter mRecommendationsAdapter = new ArrayObjectAdapter(new MoviePresenter());
+    private ArrayObjectAdapter mCastAdapter = new ArrayObjectAdapter(new PersonPresenter());
+    private ArrayObjectAdapter mRecommendationsAdapter = new ArrayObjectAdapter(new MoviePresenter());
+    String mYoutubeID;
 
     /**
      * Creates a new instance of a MovieDetailsFragment
@@ -111,6 +120,18 @@ public class MovieDetailsFragment extends DetailsFragment implements Palette.Pal
         // Define if this element is participating in the transition or not
         mFullWidthMovieDetailsPresenter.setParticipatingEntranceTransition(false);
 
+        mFullWidthMovieDetailsPresenter.setOnActionClickedListener(action -> {
+            int actionId = (int) action.getId();
+            switch (actionId) {
+                case 0:
+                    if (mYoutubeID != null) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + mYoutubeID)));
+                    }
+                    break;
+            }
+        });
+
+
         // Class presenter selector allows the Adapter to render Rows and the details
         // It can be used in any of the Adapters by the Leanback library
         ClassPresenterSelector classPresenterSelector = new ClassPresenterSelector();
@@ -159,12 +180,21 @@ public class MovieDetailsFragment extends DetailsFragment implements Palette.Pal
 
     private void bindCastMembers(CreditsResponse response) {
         mCastAdapter.addAll(0, response.getCast());
+        if (!response.getCrew().isEmpty()) {
+            for(CrewMember c : response.getCrew()) {
+                if (c.getJob().equals("Director")) {
+                    movieDetails.setDirector(c.getName());
+                    notifyDetailsChanged();
+                }
+            }
+        }
     }
 
     private void bindMovieDetails(MovieDetails movieDetails) {
         this.movieDetails = movieDetails;
         // Bind the details to the row
         mDetailsOverviewRow.setItem(this.movieDetails);
+        fetchVideos();
     }
 
     private void setupRecommendationsRow() {
@@ -180,6 +210,62 @@ public class MovieDetailsFragment extends DetailsFragment implements Palette.Pal
                     Timber.e(e, "Error fetching recommendations: %s", e.getMessage());
                 });
     }
+
+    private void fetchVideos() {
+        mDbAPI.getMovieVideos(movie.getId(), Config.API_KEY_URL)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleVideoResponse, e -> {
+                    Timber.e(e, "Error fetching video response: %s", e.getMessage());
+                });
+    }
+
+    private void handleVideoResponse(VideoResponse response) {
+        mYoutubeID = getTrailer(response.getResults(), "official");
+        if (mYoutubeID == null) {
+            mYoutubeID = getTrailer(response.getResults(), "trailer");
+        }
+
+        if (mYoutubeID == null) {
+            mYoutubeID = getTrailer(response.getResults(), "teaser");
+        }
+
+        if (mYoutubeID == null) {
+            mYoutubeID = getTrailerByType(response.getResults(), "trailer");
+        }
+
+        if (mYoutubeID == null) {
+            mYoutubeID = getTrailerByType(response.getResults(), "featurette");
+        }
+
+        if (mYoutubeID != null) {
+            SparseArrayObjectAdapter adapter = new SparseArrayObjectAdapter();
+            adapter.set(0, new Action(0, "WATCH TRAILER", null, null));
+            mDetailsOverviewRow.setActionsAdapter(adapter);
+            notifyDetailsChanged();
+        }
+    }
+
+    private String getTrailer(List<Video> videos, String keyword) {
+        String id = null;
+        for(Video v : videos) {
+            if (v.getName().toLowerCase().contains(keyword)) {
+                id = v.getKey();
+            }
+        }
+        return id;
+    }
+
+    private String getTrailerByType(List<Video> videos, String keyword) {
+        String id = null;
+        for(Video v : videos) {
+            if (v.getType().toLowerCase().contains(keyword)) {
+                id = v.getKey();
+            }
+        }
+        return id;
+    }
+
 
     private void bindRecommendations(MovieResponse response) {
         mRecommendationsAdapter.addAll(0, response.getResults());
