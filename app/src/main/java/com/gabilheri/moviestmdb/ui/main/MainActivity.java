@@ -1,7 +1,7 @@
 package com.gabilheri.moviestmdb.ui.main;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import com.gabilheri.moviestmdb.R;
 
@@ -14,7 +14,7 @@ import com.gabilheri.moviestmdb.R;
  * @since 10/8/16.
  */
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
