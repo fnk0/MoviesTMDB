@@ -57,9 +57,9 @@ public class HttpClientModule {
     }
 
     @Provides
-    @Named("movieDB") // Name is used in case a second Retrofit api is provided.
+    @Named("TVDB") // Name is used in case a second Retrofit api is provided.
     @AppScope
-    public Retrofit provideFithubRestAdapter(MoshiConverterFactory moshiConverterFactory, OkHttpClient okHttpClient) {
+    public Retrofit provideTVDBRestAdapter(MoshiConverterFactory moshiConverterFactory, OkHttpClient okHttpClient) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         okHttpClient = okHttpClient.newBuilder()
