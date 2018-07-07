@@ -1,7 +1,7 @@
 package com.gabilheri.moviestmdb.ui.main;
 
 import android.os.Bundle;
-import android.support.v17.leanback.app.BrowseFragment;
+import android.support.v17.leanback.app.BrowseSupportFragment;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.HeaderItem;
 import android.support.v17.leanback.widget.ListRow;
@@ -36,7 +36,7 @@ import timber.log.Timber;
  * @version 1.0
  * @since 10/8/16.
  */
-public class MainFragment extends BrowseFragment implements OnItemViewSelectedListener {
+public class MainFragment extends BrowseSupportFragment implements OnItemViewSelectedListener {
 
     @Inject
     TheMovieDbAPI mDbAPI;
@@ -49,13 +49,6 @@ public class MainFragment extends BrowseFragment implements OnItemViewSelectedLi
     private static final int UPCOMING = 3;
 
     SparseArray<MovieRow> mRows;
-
-    public static MainFragment newInstance() {
-        Bundle args = new Bundle();
-        MainFragment fragment = new MainFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {

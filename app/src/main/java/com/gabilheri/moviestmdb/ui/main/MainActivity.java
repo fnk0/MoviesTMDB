@@ -1,7 +1,9 @@
 package com.gabilheri.moviestmdb.ui.main;
 
+import android.app.Activity;
 import android.os.Bundle;
-import com.gabilheri.moviestmdb.ui.base.BaseTvActivity;
+
+import com.gabilheri.moviestmdb.R;
 
 
 /**
@@ -12,11 +14,11 @@ import com.gabilheri.moviestmdb.ui.base.BaseTvActivity;
  * @since 10/8/16.
  */
 
-public class MainActivity extends BaseTvActivity {
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addFragment(MainFragment.newInstance());
+        setContentView(R.layout.main_activity);
     }
 }
