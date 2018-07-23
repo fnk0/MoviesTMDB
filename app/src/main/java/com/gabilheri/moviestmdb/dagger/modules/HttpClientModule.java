@@ -30,8 +30,8 @@ public class HttpClientModule {
 
     private static final long DISK_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 
-    public static final String BACKDROP_URL = "http://image.tmdb.org/t/p/w1280/";
-    public static final String POSTER_URL = "http://image.tmdb.org/t/p/w600/";
+    public static final String BACKDROP_URL = "http://image.tmdb.org/t/p/w1280";
+    public static final String POSTER_URL = "http://image.tmdb.org/t/p/w500";
     public static final String API_URL = "https://api.themoviedb.org/3/";
     public static final String NOW_PLAYING = "movie/now_playing";
     public static final String LATEST = "movie/latest";
@@ -57,9 +57,9 @@ public class HttpClientModule {
     }
 
     @Provides
-    @Named("movieDB") // Name is used in case a second Retrofit api is provided.
+    @Named("TVDB") // Name is used in case a second Retrofit api is provided.
     @AppScope
-    public Retrofit provideFithubRestAdapter(MoshiConverterFactory moshiConverterFactory, OkHttpClient okHttpClient) {
+    public Retrofit provideTVDBRestAdapter(MoshiConverterFactory moshiConverterFactory, OkHttpClient okHttpClient) {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         okHttpClient = okHttpClient.newBuilder()
